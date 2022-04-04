@@ -10,6 +10,7 @@ import org.scrum.psd.battleship.controller.dto.Ship;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+// test
 
 public class Main {
     private static List<Ship> myFleet;
