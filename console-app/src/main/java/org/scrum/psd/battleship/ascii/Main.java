@@ -70,6 +70,7 @@ public class Main {
             console.println("Play will continue until one player sinks all of their opponent's ships");
             console.setForegroundColor(Ansi.FColor.BLUE);
             console.println("Enter coordinates for your shot :");
+            console.setForegroundColor(Ansi.FColor.WHITE);
             Position position = parsePosition(scanner.next());
             boolean isHit = GameController.checkIsHit(enemyFleet, position);
             if (isHit) {
