@@ -8,6 +8,7 @@ import org.scrum.psd.battleship.controller.dto.Position;
 import org.scrum.psd.battleship.controller.dto.Ship;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Scanner;
 // test
@@ -137,9 +138,82 @@ public class Main {
                 console.println(String.format("Enter position %s of %s (i.e A3):", i, ship.getSize()));
 
                 String positionInput = scanner.next();
-                ship.addPosition(positionInput);
+                Optional<char[]> chars = parsePositionFaisal(positionInput);
+                if (chars.isPresent()) {
+                    Position currentEnteredPosition = parsePosition(positionInput);
+                    if(validCoordinatesWithFleet(myFleet, currentEnteredPosition)){
+                        ship.addPosition(positionInput);
+                    }
+                    else{
+                        console.println(String.format("Entered Coordinate overlaps with current ship or another existing ship in your fleet"));
+                        i--;
+                    }
+
+                } else {
+                    console.println(String.format("Please enter a range between A-H/a-h and 1-8. Position was out of ranger"));
+                    i--;
+
+                }
+
             }
         }
+    }
+
+    private static boolean validCoordinatesWithFleet(List<Ship> fleet, Position currentPosition){
+        for (Ship currentShip : fleet) {
+            List<Position> positions = currentShip.getPositions();
+            if (positions != null && positions.contains(currentPosition)) {
+                return false;
+            }
+            if(!validShip(positions, currentPosition)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean validShip(List<Position> thisShipPositions, Position currentPosition){
+        if(thisShipPositions == null){
+            return true;
+        }
+        else{
+            Position lastPosition = thisShipPositions.get(thisShipPositions.size() - 1);
+            if(lastPosition.getColumn().compareTo(currentPosition.getColumn()) == 0 ){
+               if( Math.abs(lastPosition.getRow() - currentPosition.getRow()) == 1){
+                   return true;
+               }
+               else{
+                   return false;
+               }
+            }
+            else if(lastPosition.getRow() == currentPosition.getRow()){
+                
+
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+
+    
+    private static Optional<char[]> parsePositionFaisal(String position){
+        char[] chars = position.toCharArray();
+        if(chars.length >2){
+            return Optional.empty();
+        }
+        if((chars[0] >= 'a' && chars[0] <='h') || (chars[0] >= 'A' && chars[0] <='H')){
+            if(1 <=chars[1] && chars[1]<= 8){
+                return Optional.of(chars);
+            }
+            else{
+                return Optional.empty();
+            }
+
+        }
+
+        return Optional.empty();
     }
 
     private static void InitializeEnemyFleet() {
