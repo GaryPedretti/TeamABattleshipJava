@@ -8,6 +8,7 @@ public class Ship {
     private String name;
     private int size;
     private List<Position> positions;
+    private List<Position> hits = new ArrayList<>();
     private Color color;
 
     public Ship() {
@@ -84,5 +85,23 @@ public class Ship {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public boolean checkIsHit(Position shot) {
+        for (Position position : positions) {
+            if (shot.equals(position)) {
+                hits.add(shot);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isSunk() {
+        for (Position position : positions) {
+            if (!hits.contains(position))
+                return false;
+        }
+        return true;
     }
 }

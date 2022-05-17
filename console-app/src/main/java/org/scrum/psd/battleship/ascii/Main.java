@@ -10,6 +10,7 @@ import org.scrum.psd.battleship.controller.dto.Ship;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 // test
 
 public class Main {
@@ -61,8 +62,9 @@ public class Main {
             console.println("");
             console.println("Player, it's your turn");
             console.println("Enter coordinates for your shot :");
-            Position position = parsePosition(scanner.next());
+            final Position position = parsePosition(scanner.next());
             boolean isHit = GameController.checkIsHit(enemyFleet, position);
+            enemyFleet.stream().forEach( s ->  s.checkIsHit(position));
             if (isHit) {
                 beep();
 
@@ -75,11 +77,20 @@ public class Main {
                 console.println("                 -\\  \\     /  /-");
                 console.println("                   \\  \\   /  /");
             }
-
             console.println(isHit ? "Yeah ! Nice hit !" : "Miss");
+            var enemySunk = enemyFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+            enemySunk.forEach(s -> console.println("Enemy: " + s.getName() + " sunk"));
 
-            position = getRandomPosition();
-            isHit = GameController.checkIsHit(myFleet, position);
+            enemyFleet.stream().filter( s -> !s.isSunk()).forEach(s -> console.println("Enemy: " + s.getName() + " still afloat"));
+
+            if (enemySunk.equals(enemyFleet)) {
+                console.println(" You are the winner!");
+                System.exit(0);
+            }
+
+            final Position incoming = getRandomPosition();
+            isHit = GameController.checkIsHit(myFleet, incoming);
+            myFleet.stream().forEach( s -> s.checkIsHit(incoming));
             console.println("");
             console.println(String.format("Computer shoot in %s%s and %s", position.getColumn(), position.getRow(), isHit ? "hit your ship !" : "miss"));
             if (isHit) {
@@ -95,6 +106,16 @@ public class Main {
                 console.println("                   \\  \\   /  /");
 
             }
+
+            var sunkShips = myFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+            sunkShips.forEach(s -> console.println("Your: " + s.getName() + " sunk"));
+            myFleet.stream().filter( s -> !s.isSunk()).forEach(s -> console.println("Your: " + s.getName() + " still afloat"));
+
+            if (sunkShips.equals(myFleet)) {
+                console.println("You lost!");
+                System.exit(0);
+            }
+
         } while (true);
     }
 
@@ -127,7 +148,6 @@ public class Main {
     private static void InitializeMyFleet() {
         Scanner scanner = new Scanner(System.in);
         myFleet = GameController.initializeShips();
-
         console.println("Please position your fleet (Game board has size from A to H and 1 to 8) :");
 
         for (Ship ship : myFleet) {
