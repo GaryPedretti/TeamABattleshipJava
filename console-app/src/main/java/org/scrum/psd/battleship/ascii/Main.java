@@ -187,9 +187,10 @@ public class Main {
                }
             }
             else if(lastPosition.getRow() == currentPosition.getRow()){
-                
-
-                return true;
+                if(Math.abs(lastPosition.getColumn().compareTo(currentPosition.getColumn())) == 1){
+                    return true;
+                }
+                return false;
             }
             else{
                 return false;
