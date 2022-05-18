@@ -162,7 +162,7 @@ public class Main {
     private static boolean validCoordinatesWithFleet(List<Ship> fleet, Position currentPosition){
         for (Ship currentShip : fleet) {
             List<Position> positions = currentShip.getPositions();
-            if (positions != null && positions.contains(currentPosition)) {
+            if (positions.contains(currentPosition)) {
                 return false;
             }
             if(!validShip(positions, currentPosition)){
