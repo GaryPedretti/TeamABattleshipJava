@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 // test
 
 public class Main {
-    private static List<Ship> myFleet;
-    private static List<Ship> enemyFleet;
     private static ColoredPrinter console;
+
+    static GameController controller = new GameController();
 
     public static void main(String[] args) {
         console = new ColoredPrinter.Builder(1, false).background(Ansi.BColor.BLACK).foreground(Ansi.FColor.WHITE).build();
@@ -63,8 +63,7 @@ public class Main {
             console.println("Player, it's your turn");
             console.println("Enter coordinates for your shot :");
             final Position position = parsePosition(scanner.next());
-            boolean isHit = GameController.checkIsHit(enemyFleet, position);
-            enemyFleet.stream().forEach( s ->  s.checkIsHit(position));
+            boolean isHit = controller.fireAtEnemy(position);
             if (isHit) {
                 beep();
 
@@ -78,19 +77,18 @@ public class Main {
                 console.println("                   \\  \\   /  /");
             }
             console.println(isHit ? "Yeah ! Nice hit !" : "Miss");
-            var enemySunk = enemyFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+            var enemySunk = controller.getEnemyShipsSunk();
             enemySunk.forEach(s -> console.println("Enemy: " + s.getName() + " sunk"));
 
-            enemyFleet.stream().filter( s -> !s.isSunk()).forEach(s -> console.println("Enemy: " + s.getName() + " still afloat"));
+            controller.getEnemyShipsAfloat().stream().forEach(s -> console.println("Enemy: " + s.getName() + " still afloat"));
 
-            if (enemySunk.equals(enemyFleet)) {
+            if (controller.youWon()) {
                 console.println(" You are the winner!");
                 System.exit(0);
             }
 
             final Position incoming = getRandomPosition();
-            isHit = GameController.checkIsHit(myFleet, incoming);
-            myFleet.stream().forEach( s -> s.checkIsHit(incoming));
+            isHit = controller.incomingFire(incoming);
             console.println("");
             console.println(String.format("Computer shoot in %s%s and %s", position.getColumn(), position.getRow(), isHit ? "hit your ship !" : "miss"));
             if (isHit) {
@@ -107,11 +105,11 @@ public class Main {
 
             }
 
-            var sunkShips = myFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+            var sunkShips = controller.getYourShipsSunk();
             sunkShips.forEach(s -> console.println("Your: " + s.getName() + " sunk"));
-            myFleet.stream().filter( s -> !s.isSunk()).forEach(s -> console.println("Your: " + s.getName() + " still afloat"));
+            controller.getYourShipsAfloat().stream().forEach(s -> console.println("Your: " + s.getName() + " still afloat"));
 
-            if (sunkShips.equals(myFleet)) {
+            if (controller.youLost()) {
                 console.println("You lost!");
                 System.exit(0);
             }
@@ -147,7 +145,7 @@ public class Main {
 
     private static void InitializeMyFleet() {
         Scanner scanner = new Scanner(System.in);
-        myFleet = GameController.initializeShips();
+        List<Ship> myFleet = GameController.initializeShips();
         console.println("Please position your fleet (Game board has size from A to H and 1 to 8) :");
 
         for (Ship ship : myFleet) {
@@ -160,10 +158,11 @@ public class Main {
                 ship.addPosition(positionInput);
             }
         }
+        controller.myFleet = myFleet;
     }
 
     private static void InitializeEnemyFleet() {
-        enemyFleet = GameController.initializeShips();
+        List<Ship> enemyFleet = GameController.initializeShips();
 
         enemyFleet.get(0).getPositions().add(new Position(Letter.B, 4));
         enemyFleet.get(0).getPositions().add(new Position(Letter.B, 5));
@@ -186,5 +185,6 @@ public class Main {
 
         enemyFleet.get(4).getPositions().add(new Position(Letter.C, 5));
         enemyFleet.get(4).getPositions().add(new Position(Letter.C, 6));
+        controller.enemyFleet = enemyFleet;
     }
 }

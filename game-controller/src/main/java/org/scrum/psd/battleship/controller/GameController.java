@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class GameController {
     public static boolean checkIsHit(Collection<Ship> ships, Position shot) {
@@ -31,6 +32,9 @@ public class GameController {
         return false;
     }
 
+    public static List<Ship> myFleet;
+    public static List<Ship> enemyFleet;
+
     public static List<Ship> initializeShips() {
         return Arrays.asList(
                 new Ship("Aircraft Carrier", 5, Color.CADET_BLUE),
@@ -38,6 +42,46 @@ public class GameController {
                 new Ship("Submarine", 3, Color.CHARTREUSE),
                 new Ship("Destroyer", 3, Color.YELLOW),
                 new Ship("Patrol Boat", 2, Color.ORANGE));
+    }
+
+    public boolean fireAtEnemy(Position position) {
+        boolean isHit = GameController.checkIsHit(enemyFleet, position);
+        enemyFleet.stream().forEach( s ->  s.checkIsHit(position));
+        return isHit;
+    }
+
+    public boolean incomingFire(Position incoming) {
+        var isHit = GameController.checkIsHit(myFleet, incoming);
+        myFleet.stream().forEach( s -> s.checkIsHit(incoming));
+        return isHit;
+    }
+
+    public List<Ship> getEnemyShipsSunk() {
+        return enemyFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+    }
+
+    public List<Ship> getEnemyShipsAfloat() {
+        return enemyFleet.stream().filter( s -> !s.isSunk()).collect(Collectors.toList());
+    }
+
+    public List<Ship> getYourShipsSunk() {
+        return myFleet.stream().filter( s -> s.isSunk()).collect(Collectors.toList());
+    }
+
+    public List<Ship> getYourShipsAfloat() {
+        return myFleet.stream().filter( s -> !s.isSunk()).collect(Collectors.toList());
+    }
+
+    public boolean youWon() {
+        if (enemyFleet.equals(getEnemyShipsSunk()))
+            return true;
+        return false;
+    }
+
+    public boolean youLost() {
+        if (myFleet.equals(getYourShipsSunk()))
+            return true;
+        return false;
     }
 
     public static boolean isShipValid(Ship ship) {
