@@ -21,7 +21,7 @@ subprojects {
     group 'org.scrum.psd.battleship'
     version '1.0.0-SNAPSHOT'
 
-    sourceCompatibility = 1.8
+    sourceCompatibility = 17
 
     dependencies {
         testImplementation 'org.slf4j:slf4j-api:1.7.30',
